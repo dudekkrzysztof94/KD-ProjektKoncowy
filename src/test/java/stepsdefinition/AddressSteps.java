@@ -81,16 +81,12 @@ public class AddressSteps {
         Assert.assertEquals(storedAddress, addressesPage.returnAddressByAlias(signedAlias).getText());
     }
 
-    @And("User deletes that address")
-    public void userDeletesThatAddress() {
+    @And("User deletes last added address")
+    public void userDeletesLastAddedAddress() {
         AddressesPage addressesPage = new AddressesPage(driver);
 
         int indexOfAddressToDelete = addressesPage.returnIndexOfAddressByAlias(signedAlias);
         addressesPage.deleteAddressByIndex(indexOfAddressToDelete);
-    }
-
-    @And("Address deletion is verified")
-    public void addressDeletionIsVerified() {
     }
 
     private void signAliasWithTime(String baseAddress) {

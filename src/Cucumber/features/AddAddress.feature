@@ -8,9 +8,8 @@ Feature: Add shipping address after login
     And User submits new address
     And Message "Address successfully added!" is displayed
     And Address is verified
-    And User deletes that address
+    And User deletes last added address
     Then Message "Address successfully deleted!" is displayed
-    And Address deletion is verified
     Examples:
     | alias           | address | city   | code   | country        | phone     |
-    | example address | Długa 5 | Warsaw | 02-741 | United Kingdom | 753159855 |
+    | example address | Dluga 5 | Warsaw | 02-741 | United Kingdom | 753159855 |
