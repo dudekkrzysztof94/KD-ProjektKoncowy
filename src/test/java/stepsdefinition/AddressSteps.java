@@ -1,96 +1,72 @@
 package stepsdefinition;
 
-import io.cucumber.java.en.Given;
+import io.cucumber.java.en.And;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
-import io.cucumber.java.en.And;
-import org.junit.Assert;
-import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import pages.AccountPage;
-import pages.NewAddressPage;
 import pages.AddressesPage;
-import pages.LoginPage;
+import pages.NewAddressPage;
+import utils.Screenshooter;
+import utils.WebDriverManager;
 
-import java.time.LocalDateTime;
-import java.util.concurrent.TimeUnit;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class AddressSteps {
-    private static WebDriver driver;
-    private static LocalDateTime now;
-    private static String signedAlias;
-    private static String storedAddress;
 
-    @Given("User logs into CodersLab shop")
-    public void userLogsIntoCodersLabShop() {
-        driver = new ChromeDriver();
-        driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
-        driver.manage().window().maximize();
-        driver.get("https://prod-kurs.coderslab.pl/index.php?controller=authentication&back=my-account");
-        LoginPage loginPage = new LoginPage(driver);
-        loginPage.loginAs("jankowalski01@mymail.de", "Pass1231");
-    }
+    private final ChromeDriver driver = WebDriverManager.getDriver();
+    private NewAddressPage newAddressPage;
+    private AddressesPage addressesPage;
+    private String storedAddress;
 
-    @When("User navigates to AddressesPage")
+    @When("User navigates to the Addresses Page")
     public void userNavigatesToAddressPage() {
         AccountPage accountPage = new AccountPage(driver);
         accountPage.navigateToAddresses();
     }
 
-    @And("User creates new address")
+    @And("User clicks on the new address link")
     public void userAddsANewAddress() {
-        AddressesPage addressesPage = new AddressesPage(driver);
-        addressesPage.createNewAddress();
+        addressesPage = new AddressesPage(driver);
+        addressesPage.clickNewAddressLink();
     }
 
-    @And("User fills in address form with {string}, {string}, {string}, {string}, {string}, {string}")
-    public void userFillsInAddressFormWith(String arg0, String arg1, String arg2, String arg3, String arg4, String arg5) {
-        NewAddressPage newAddressPage = new NewAddressPage(driver);
+    @And("User fills in the address form with {string}, {string}, {string}, {string}, {string}, {string}, {string}, {string}")
+    public void userFillsInAddressFormWith(String name, String surname, String alias, String address, String city, String code, String country, String phone) {
+        newAddressPage = new NewAddressPage(driver);
 
-        newAddressPage.setFirstName("Jazimierz");
-        newAddressPage.setLastName("Kowalski");
+        newAddressPage.setFirstName(name);
+        newAddressPage.setLastName(surname);
+        newAddressPage.setAlias(alias);
+        newAddressPage.setAddress(address);
+        newAddressPage.setCity(city);
+        newAddressPage.setPostcode(code);
+        newAddressPage.setCountry(country);
+        newAddressPage.setPhone(phone);
 
-        signAliasWithTime(arg0);
-
-        newAddressPage.setAlias(signedAlias);
-        newAddressPage.setAddress1(arg1);
-        newAddressPage.setCity(arg2);
-        newAddressPage.setPostcode(arg3);
-        newAddressPage.setCountry(arg4);
-        newAddressPage.setPhone(arg5);
-
-        storedAddress = signedAlias+"\nJazimierz Kowalski\n"+arg1+"\n"+arg2+"\n"+arg3+"\n"+arg4+"\n"+arg5;
+        storedAddress = String.format("%s\n%s %s\n%s\n%s\n%s\n%s\n%s", alias, name, surname, address, city, code, country, phone);
     }
 
-    @And("User submits new address")
+    @And("User submits the new address")
     public void userSubmitsNewAddress() {
-        NewAddressPage newAddressPage = new NewAddressPage(driver);
-        newAddressPage.submitAddress();
+        newAddressPage.clickSaveButton();
     }
 
-    @Then("Message {string} is displayed")
-    public void messageIsDisplayed(String arg0) {
-        AddressesPage addressesPage = new AddressesPage(driver);
-        Assert.assertEquals(arg0, addressesPage.isSuccessful());
+    @Then("Message {string} should be displayed")
+    public void messageIsDisplayed(String message) {
+        addressesPage = new AddressesPage(driver);
+        Screenshooter.takeScreenshot(driver);
+        assertEquals(message, addressesPage.getSuccessAlertText());
     }
 
-    @And("Address is verified")
-    public void addressIsVerified() {
-        AddressesPage addressesPage = new AddressesPage(driver);
-
-        Assert.assertEquals(storedAddress, addressesPage.returnAddressByAlias(signedAlias).getText());
+    @And("Address with {string} should be visible in the address list")
+    public void addressIsVerified(String alias) {
+        assertEquals(storedAddress, addressesPage.findAddressByAlias(alias).getText());
     }
 
-    @And("User deletes last added address")
-    public void userDeletesLastAddedAddress() {
-        AddressesPage addressesPage = new AddressesPage(driver);
-
-        int indexOfAddressToDelete = addressesPage.returnIndexOfAddressByAlias(signedAlias);
+    @And("User deletes the address with {string}")
+    public void userDeletesLastAddedAddress(String alias) {
+        int indexOfAddressToDelete = addressesPage.findAddressIndexByAlias(alias);
         addressesPage.deleteAddressByIndex(indexOfAddressToDelete);
-    }
-
-    private void signAliasWithTime(String baseAddress) {
-        now = LocalDateTime.now();
-        signedAlias = (now + baseAddress).substring(11, 43);
     }
 }

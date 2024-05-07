@@ -57,7 +57,7 @@ public class ProductPage extends BasePage{
     }
 
     public void placeOrderAndCheckout() {
-        WebDriverWait wait = new WebDriverWait(driver,30);
+//        WebDriverWait wait = new WebDriverWait(driver,30);
         wait.until(ExpectedConditions.elementToBeClickable(proceedToCheckoutButton));
         proceedToCheckoutButton.click();
     }

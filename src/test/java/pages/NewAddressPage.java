@@ -1,100 +1,69 @@
 package pages;
 
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.FindBy;
+import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
 
-public class NewAddressPage extends BasePage{
+public class NewAddressPage extends BasePage {
+
+    private final By aliasLocator = By.name("alias");
+    private final By firstNameLocator = By.name("firstname");
+    private final By lastNameLocator = By.name("lastname");
+    private final By addressLocator = By.name("address1");
+    private final By cityLocator = By.name("city");
+    private final By postcodeLocator = By.name("postcode");
+    private final By phoneLocator = By.name("phone");
+    private final By countryLocator = By.name("id_country");
+    private final By saveButtonLocator = By.cssSelector(".btn.btn-primary.float-xs-right");
+
 
     public NewAddressPage(WebDriver driver) {
         super(driver);
     }
 
-    @FindBy(name = "alias")
-    private WebElement aliasInput;
-
-    @FindBy(name = "firstname")
-    private WebElement firstNameInput;
-
-    @FindBy(name = "lastname")
-    private WebElement lastNameInput;
-
-    @FindBy(name = "company")
-    private WebElement companyInput;
-
-    @FindBy(name = "vat_number")
-    private WebElement vatNumberInput;
-
-    @FindBy(name = "address1")
-    private WebElement address1Input;
-
-    @FindBy(name = "address2")
-    private WebElement address2Input;
-
-    @FindBy(name = "city")
-    private WebElement cityInput;
-
-    @FindBy(name = "postcode")
-    private WebElement postcodeInput;
-
-    @FindBy(name = "id_country")
-    private WebElement countrySelect;
-
-    @FindBy(name = "phone")
-    private WebElement phoneInput;
-
-    @FindBy(css = ".btn.btn-primary.float-xs-right")
-    private WebElement saveButton;
-
-    private void fillInput(WebElement element, String input) {
+    private void fillInput(By locator, String input) {
+        WebElement element = wait.until(ExpectedConditions.visibilityOfElementLocated(locator));
         element.click();
         element.clear();
         element.sendKeys(input);
     }
 
     public void setAlias(String alias) {
-        fillInput(aliasInput,  alias);
+        fillInput(aliasLocator, alias);
     }
 
     public void setFirstName(String firstName) {
-        fillInput(firstNameInput,  firstName);
+        fillInput(firstNameLocator, firstName);
     }
 
     public void setLastName(String lastName) {
-        fillInput(lastNameInput,  lastName);
+        fillInput(lastNameLocator, lastName);
     }
 
-    public void setVatNumber(String vatNumber) {
-        fillInput(vatNumberInput,  vatNumber);
-    }
-
-    public void setAddress1(String address1) {
-        fillInput(address1Input,  address1);
-    }
-
-    public void setAddress2(String address2) {
-        fillInput(address2Input,  address2);
+    public void setAddress(String address1) {
+        fillInput(addressLocator, address1);
     }
 
     public void setCity(String city) {
-        fillInput(cityInput,  city);
+        fillInput(cityLocator, city);
     }
 
     public void setPostcode(String postcode) {
-        fillInput(postcodeInput,  postcode);
+        fillInput(postcodeLocator, postcode);
     }
 
     public void setPhone(String phone) {
-        fillInput(phoneInput,  phone);
+        fillInput(phoneLocator, phone);
     }
 
     public void setCountry(String country) {
-        Select s = new Select(countrySelect);
-        s.selectByVisibleText(country);
+        WebElement countryElement = wait.until(ExpectedConditions.visibilityOfElementLocated(countryLocator));
+        new Select(countryElement).selectByVisibleText(country);
     }
 
-    public void submitAddress() {
-        saveButton.click();
+    public void clickSaveButton() {
+        click(saveButtonLocator);
     }
 }

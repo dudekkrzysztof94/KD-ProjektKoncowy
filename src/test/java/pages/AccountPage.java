@@ -1,40 +1,27 @@
 package pages;
 
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.FindBy;
 
 public class AccountPage extends BasePage {
+
+    private final By addressButtonLocator = By.id("addresses-link");
+    private final By ordersButtonLocator = By.id("history-link");
+    private final By logoutButtonLocator = By.cssSelector(".logout");
 
     public AccountPage(WebDriver driver) {
         super(driver);
     }
 
-    @FindBy(id = "identity-link")
-    private WebElement infoButton;
-
-    @FindBy(id = "addresses-link")
-    private WebElement addressButton;
-
-    @FindBy(id = "history-link")
-    private WebElement ordersButton;
-
-    @FindBy(id = "order-slips-link")
-    private WebElement slipsButton;
-
-    public void navigateToInfo() {
-        infoButton.click();
-    }
-
     public void navigateToAddresses() {
-        addressButton.click();
+        click(addressButtonLocator);
     }
 
     public void navigateToOrderHistory() {
-        ordersButton.click();
+        click(ordersButtonLocator);
     }
 
-    public void navigateToCreditSlips() {
-        slipsButton.click();
+    public void logout() {
+        click(logoutButtonLocator);
     }
 }

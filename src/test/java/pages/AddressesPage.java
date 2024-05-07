@@ -1,58 +1,51 @@
 package pages;
 
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.FindAll;
-import org.openqa.selenium.support.FindBy;
+import org.openqa.selenium.support.ui.ExpectedConditions;
 
 import java.util.List;
+import java.util.stream.IntStream;
 
-public class AddressesPage extends BasePage{
+public class AddressesPage extends BasePage {
+
+    private final By successAlertLocator = By.cssSelector(".alert.alert-success");
+    private final By newAddressLinkLocator = By.xpath("//a[@data-link-action='add-address']");
+    private final By addressesLocator = By.cssSelector(".address-body");
+    private final By deleteButtonsLocator = By.xpath("//a[@data-link-action='delete-address']");
+
+
     public AddressesPage(WebDriver driver) {
         super(driver);
     }
 
-    @FindBy(css = ".alert.alert-success")
-    private WebElement successAlert;
-
-    @FindBy(xpath = "//a[@data-link-action='add-address']")
-    private WebElement newAddressLink;
-
-    @FindAll(@FindBy(css = ".address-body"))
-    private List<WebElement> addresses;
-
-    @FindAll(@FindBy(xpath = "//a[@data-link-action='delete-address']"))
-    private List<WebElement> deleteButtons;
-
-    public String isSuccessful() {
-        return successAlert.getText();
+    public void clickNewAddressLink() {
+        click(newAddressLinkLocator);
     }
 
-    public void createNewAddress() {
-        newAddressLink.click();
+    public String getSuccessAlertText() {
+        return wait.until(ExpectedConditions.visibilityOfElementLocated(successAlertLocator)).getText();
     }
 
-    public WebElement returnAddressByAlias(String alias) {
-        WebElement foundAddress = addresses.get(0);
-        for (int i=0; i<addresses.size(); i++) {
-            if(addresses.get(i).getText().startsWith(alias)) {
-                foundAddress = addresses.get(i);
-            }
-        }
-        return foundAddress;
+    public WebElement findAddressByAlias(String alias) {
+        List<WebElement> addresses = driver.findElements(addressesLocator);
+        return addresses.stream()
+                .filter(address -> address.getText().startsWith(alias))
+                .findFirst()
+                .orElse(null);
     }
 
-    public int returnIndexOfAddressByAlias(String alias) {
-        int index = -1;
-        for (int i=0; i<addresses.size(); i++) {
-            if(addresses.get(i).getText().startsWith(alias)) {
-                index = i;
-            }
-        }
-        return index;
+    public int findAddressIndexByAlias(String alias) {
+        List<WebElement> addresses = driver.findElements(addressesLocator);
+        return IntStream.range(0, addresses.size())
+                .filter(i -> addresses.get(i).getText().startsWith(alias))
+                .findFirst()
+                .orElse(-1);
     }
 
     public void deleteAddressByIndex(int index) {
+        List<WebElement> deleteButtons = driver.findElements(deleteButtonsLocator);
         deleteButtons.get(index).click();
     }
 }
