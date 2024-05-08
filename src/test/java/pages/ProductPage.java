@@ -1,64 +1,50 @@
 package pages;
 
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
-import org.openqa.selenium.support.ui.WebDriverWait;
 
-public class ProductPage extends BasePage{
+public class ProductPage extends BasePage {
+
+    private final By regularPriceLocator = By.cssSelector(".regular-price");
+    private final By discountPriceLocator = By.cssSelector(".current-price-value");
+    private final By sizeSelectLocator = By.id("group_1");
+    private final By quantityInputLocator = By.id("quantity_wanted");
+    private final By addToCartButtonLocator = By.cssSelector(".add-to-cart");
+    private final By proceedToCheckoutButtonLocator = By.xpath("//div[@class='cart-content-btn']/a");
+
     public ProductPage(WebDriver driver) {
         super(driver);
     }
 
-    @FindBy(css = ".regular-price")
-    private WebElement regularPrice;
+    public String getRegularPrice() {
+        WebElement regularPrice = wait.until(ExpectedConditions.visibilityOfElementLocated(regularPriceLocator));
+        return regularPrice.getText();
+    }
 
-    @FindBy(xpath = "//span[@itemprop='price']")
-    private WebElement discountPrice;
-
-    @FindBy(id = "group_1")
-    private WebElement sizeSelect;
-
-    @FindBy(id = "quantity_wanted")
-    private WebElement quantityInput;
-
-    @FindBy(css = ".add-to-cart")
-    private WebElement addToCartButton;
-
-    @FindBy(xpath = "//div[@class='cart-content-btn']/a")
-    private WebElement proceedToCheckoutButton;
-
-    public double calculateDiscount() {
-        double newPrice, oldPrice;
-        newPrice = Double.parseDouble(discountPrice.getText().substring(1));
-        oldPrice = Double.parseDouble(regularPrice.getText().substring(1));
-        return (oldPrice-newPrice)/oldPrice*100;
+    public String getDiscountedPrice() {
+        WebElement discountedPrice = wait.until(ExpectedConditions.visibilityOfElementLocated(discountPriceLocator));
+        return discountedPrice.getText();
     }
 
     public void selectSize(String size) {
-        Select s = new Select(sizeSelect);
-        s.selectByVisibleText(size);
+        WebElement sizeSelect = wait.until(ExpectedConditions.elementToBeClickable(sizeSelectLocator));
+        new Select(sizeSelect).selectByVisibleText(size);
     }
 
-    public void setQuantity(String quantity) throws InterruptedException {
-        Thread.sleep(500);
-        /*
-        without driver sleeping here browser engine while reconstructing this input
-        overwrites 5 with 1 at around 300 millisecond of elapsed time; hence Thread.sleep
-         */
+    public void setQuantity(String quantity) {
+        WebElement quantityInput = wait.until(ExpectedConditions.visibilityOfElementLocated(quantityInputLocator));
         quantityInput.clear();
         quantityInput.sendKeys(quantity);
     }
 
-    public void addToCart() {
-        addToCartButton.click();
+    public void clickAddToCartButton() {
+        click(addToCartButtonLocator);
     }
 
-    public void placeOrderAndCheckout() {
-//        WebDriverWait wait = new WebDriverWait(driver,30);
-        wait.until(ExpectedConditions.elementToBeClickable(proceedToCheckoutButton));
-        proceedToCheckoutButton.click();
+    public void clickProceedToCheckoutButton() {
+        click(proceedToCheckoutButtonLocator);
     }
 }

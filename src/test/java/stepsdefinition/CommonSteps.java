@@ -11,7 +11,7 @@ import utils.WebDriverManager;
 public class CommonSteps {
 
     @Given("User is logged into Presta shop")
-    public void userLogsIntoCodersLabShop() {
+    public void userIsLoggedIntoPrestaShop() {
         ChromeDriver driver = WebDriverManager.getDriver();
         driver.get("https://prod-kurs.coderslab.pl/");
         HomePage homePage = new HomePage(driver);

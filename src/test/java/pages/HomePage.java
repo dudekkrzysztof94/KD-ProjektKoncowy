@@ -14,4 +14,9 @@ public class HomePage extends BasePage {
     public void clickSignInButton() {
         click(signInButtonLocator);
     }
+
+    public void clickProduct(String productName) {
+        By productLocator = By.linkText(productName);
+        click(productLocator);
+    }
 }

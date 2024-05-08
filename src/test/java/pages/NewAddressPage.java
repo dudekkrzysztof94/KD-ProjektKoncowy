@@ -16,7 +16,7 @@ public class NewAddressPage extends BasePage {
     private final By postcodeLocator = By.name("postcode");
     private final By phoneLocator = By.name("phone");
     private final By countryLocator = By.name("id_country");
-    private final By saveButtonLocator = By.cssSelector(".btn.btn-primary.float-xs-right");
+    private final By saveButtonLocator = By.className("form-control-submit");
 
 
     public NewAddressPage(WebDriver driver) {

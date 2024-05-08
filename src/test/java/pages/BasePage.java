@@ -10,6 +10,8 @@ import java.time.Duration;
 
 public class BasePage {
 
+    private final By logoButtonLocator = By.cssSelector("a > img.logo");
+    private final By accountButtonLocator = By.className("account");
     protected WebDriver driver;
     protected WebDriverWait wait;
 
@@ -21,5 +23,13 @@ public class BasePage {
     public void click(By locator) {
         WebElement element = wait.until(ExpectedConditions.elementToBeClickable(locator));
         element.click();
+    }
+
+    public void clickLogoButton() {
+        click(logoButtonLocator);
+    }
+
+    public void clickAccountButton() {
+        click(accountButtonLocator);
     }
 }

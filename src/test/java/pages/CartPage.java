@@ -1,74 +1,71 @@
 package pages;
 
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.FindBy;
+import org.openqa.selenium.support.ui.ExpectedConditions;
 
-public class CartPage extends BasePage{
+import java.util.List;
+
+public class CartPage extends BasePage {
+
+    private final By proceedToCheckoutButtonLocator = By.linkText("PROCEED TO CHECKOUT");
+    private final By continueAddressButtonLocator = By.name("confirm-addresses");
+    private final By deliveryOptionRadioLocator = By.className("carrier-name");
+    private final By continueDeliveryOptionButtonLocator = By.name("confirmDeliveryOption");
+    private final By paymentOptionLocator = By.xpath("//div[@class='payment-option clearfix']/label/span");
+    private final By termsOfServiceCheckBoxLocator = By.id("conditions_to_approve[terms-and-conditions]");
+    private final By placeOrderButtonLocator = By.cssSelector(".btn.btn-primary.center-block");
+    private final By totalPriceLocator = By.xpath("//tr[contains(@class, 'total-value')]/td[last()]");
+    private final By orderReferenceLocator = By.id("order-reference-value");
+
     public CartPage(WebDriver driver) {
         super(driver);
     }
 
-    @FindBy(xpath = "//div[@class='text-sm-center']/a")
-    private WebElement proceedToCheckoutButton;
-
-    @FindBy(css = ".btn.btn-primary.continue.float-xs-right")
-    private WebElement confirmAddressButton;
-
-    @FindBy(name = "confirmDeliveryOption")
-    private WebElement confirmDeliveryOptionButton;
-
-    @FindBy(id = "payment-option-1")
-    private WebElement payByCheckRadio;
-
-    @FindBy(name = "conditions_to_approve[terms-and-conditions]")
-    private WebElement termsOfServiceCheckBox;
-
-    @FindBy(css = ".btn.btn-primary.center-block")
-    private WebElement orderWithObligationToPayButton;
-
-    @FindBy(xpath = "//tr[@class='font-weight-bold']/td[last()]")
-    private WebElement totalPrice;
-
-    @FindBy(css = ".account")
-    private WebElement accountPageLink;
-
-    @FindBy(xpath = "//div[@id='order-details']/ul/li")
-    private WebElement orderReference;
-
-    public void proceedToCheckout() {
-        proceedToCheckoutButton.click();
+    public void clickProceedToCheckoutButton() {
+        click(proceedToCheckoutButtonLocator);
     }
 
-    public void confirmAddress() {
-        confirmAddressButton.click();
+    public void clickContinueAddressButton() {
+        click(continueAddressButtonLocator);
     }
 
-    public void confirmDeliveryOption() {
-        confirmDeliveryOptionButton.click();
+    public void selectDeliveryOption(String deliveryOption) {
+        List<WebElement> deliveryOptions = wait.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(deliveryOptionRadioLocator));
+        deliveryOptions.stream()
+                .filter(option -> option.getText().equals(deliveryOption))
+                .findFirst()
+                .ifPresent(WebElement::click);
     }
 
-    public void selectPayByCheck() {
-        payByCheckRadio.click();
+    public void clickContinueDeliveryOptionButton() {
+        click(continueDeliveryOptionButtonLocator);
     }
 
-    public void agreeToTermsOfService() {
+    public void selectPaymentMethod(String paymentMethod) {
+        driver.findElements(paymentOptionLocator).stream()
+                .filter(e -> e.getText().equals(paymentMethod))
+                .findFirst()
+                .ifPresent(WebElement::click);
+    }
+
+    public void clickTermsOfServiceCheckBox() {
+        WebElement termsOfServiceCheckBox = driver.findElement(termsOfServiceCheckBoxLocator);
         termsOfServiceCheckBox.click();
     }
 
-    public void orderWithObligationToPay() {
-        orderWithObligationToPayButton.click();
+    public void clickPlaceOrderButton() {
+        click(placeOrderButtonLocator);
     }
 
-    public String returnTotalOrderPrice() {
+    public String getTotalPrice() {
+        WebElement totalPrice = wait.until(ExpectedConditions.visibilityOfElementLocated(totalPriceLocator));
         return totalPrice.getText();
     }
 
-    public void goToAccountPage() {
-        accountPageLink.click();
-    }
-
-    public String returnOrderReferenceNumber() {
-        return  orderReference.getText().substring(17);
+    public String getOrderReference() {
+        WebElement orderReference = wait.until(ExpectedConditions.visibilityOfElementLocated(orderReferenceLocator));
+        return orderReference.getText();
     }
 }

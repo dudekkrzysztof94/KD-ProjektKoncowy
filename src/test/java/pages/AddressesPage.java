@@ -10,9 +10,9 @@ import java.util.stream.IntStream;
 
 public class AddressesPage extends BasePage {
 
-    private final By successAlertLocator = By.cssSelector(".alert.alert-success");
+    private final By successAlertLocator = By.className("alert-success");
+    private final By addressesLocator = By.className("address-body");
     private final By newAddressLinkLocator = By.xpath("//a[@data-link-action='add-address']");
-    private final By addressesLocator = By.cssSelector(".address-body");
     private final By deleteButtonsLocator = By.xpath("//a[@data-link-action='delete-address']");
 
 

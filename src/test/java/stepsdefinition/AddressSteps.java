@@ -15,26 +15,23 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class AddressSteps {
 
     private final ChromeDriver driver = WebDriverManager.getDriver();
-    private NewAddressPage newAddressPage;
-    private AddressesPage addressesPage;
+    private final AccountPage accountPage = new AccountPage(driver);
+    private final NewAddressPage newAddressPage = new NewAddressPage(driver);
+    private final AddressesPage addressesPage = new AddressesPage(driver);
     private String storedAddress;
 
     @When("User navigates to the Addresses Page")
-    public void userNavigatesToAddressPage() {
-        AccountPage accountPage = new AccountPage(driver);
+    public void userNavigatesToTheAddressesPage() {
         accountPage.navigateToAddresses();
     }
 
     @And("User clicks on the new address link")
-    public void userAddsANewAddress() {
-        addressesPage = new AddressesPage(driver);
+    public void userClicksOnTheNewAddressLink() {
         addressesPage.clickNewAddressLink();
     }
 
     @And("User fills in the address form with {string}, {string}, {string}, {string}, {string}, {string}, {string}, {string}")
-    public void userFillsInAddressFormWith(String name, String surname, String alias, String address, String city, String code, String country, String phone) {
-        newAddressPage = new NewAddressPage(driver);
-
+    public void userFillsInTheAddressFormWith(String name, String surname, String alias, String address, String city, String code, String country, String phone) {
         newAddressPage.setFirstName(name);
         newAddressPage.setLastName(surname);
         newAddressPage.setAlias(alias);
@@ -48,24 +45,23 @@ public class AddressSteps {
     }
 
     @And("User submits the new address")
-    public void userSubmitsNewAddress() {
+    public void userSubmitsTheNewAddress() {
         newAddressPage.clickSaveButton();
     }
 
     @Then("Message {string} should be displayed")
-    public void messageIsDisplayed(String message) {
-        addressesPage = new AddressesPage(driver);
+    public void messageShouldBeDisplayed(String message) {
         Screenshooter.takeScreenshot(driver);
         assertEquals(message, addressesPage.getSuccessAlertText());
     }
 
     @And("Address with {string} should be visible in the address list")
-    public void addressIsVerified(String alias) {
+    public void addressWithShouldBeVisibleInTheAddressList(String alias) {
         assertEquals(storedAddress, addressesPage.findAddressByAlias(alias).getText());
     }
 
     @And("User deletes the address with {string}")
-    public void userDeletesLastAddedAddress(String alias) {
+    public void userDeletesTheAddressWith(String alias) {
         int indexOfAddressToDelete = addressesPage.findAddressIndexByAlias(alias);
         addressesPage.deleteAddressByIndex(indexOfAddressToDelete);
     }

@@ -23,7 +23,6 @@ public class Screenshooter {
         String formattedDate = now.format(FORMATTER);
         File screenshot = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
         Path screenshotDirectory = Paths.get(SCREENSHOT_FOLDER);
-        System.out.println("Screenshot saved to: " + screenshotDirectory + "/screenshot" + formattedDate + ".png");
 
         try {
             if (Files.notExists(screenshotDirectory)) {

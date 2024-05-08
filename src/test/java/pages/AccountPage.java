@@ -7,7 +7,7 @@ public class AccountPage extends BasePage {
 
     private final By addressButtonLocator = By.id("addresses-link");
     private final By ordersButtonLocator = By.id("history-link");
-    private final By logoutButtonLocator = By.cssSelector(".logout");
+    private final By logoutButtonLocator = By.className("logout");
 
     public AccountPage(WebDriver driver) {
         super(driver);

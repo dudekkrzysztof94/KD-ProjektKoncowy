@@ -1,130 +1,110 @@
 package stepsdefinition;
 
 import io.cucumber.java.en.And;
-import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
-import org.apache.commons.io.FileUtils;
-import org.openqa.selenium.OutputType;
-import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.chrome.ChromeDriver;
 import pages.*;
+import utils.Screenshooter;
+import utils.WebDriverManager;
 
-import java.io.File;
-import java.io.IOException;
-import java.time.LocalDateTime;
-import java.util.concurrent.TimeUnit;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class OrderSteps {
-    private static WebDriver driver;
+
+    private final WebDriver driver = WebDriverManager.getDriver();
+    private final AccountPage accountPage = new AccountPage(driver);
+    private final HomePage homePage = new HomePage(driver);
+    private final ProductPage productPage = new ProductPage(driver);
+    private final CartPage cartPage = new CartPage(driver);
+    private final OrdersPage ordersPage = new OrdersPage(driver);
     private String totalOrderPrice;
     private String referenceNumber;
-    private static LocalDateTime now;
 
-    @Given("User is logged into CodersLab shop")
-    public void userIsLoggedIntoCodersLabShop() {
-        driver = new ChromeDriver();
-        driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
-        driver.manage().window().maximize();
-        driver.get("https://prod-kurs.coderslab.pl/index.php?controller=authentication&back=my-account");
-        LoginPage loginPage = new LoginPage(driver);
-        loginPage.loginAs("jankowalski01@mymail.de", "Pass1231");
+    @When("User navigates to the {string} product page")
+    public void userOpensHummingbirdPrintedSweaterProductPage(String productName) {
+        accountPage.clickLogoButton();
+        homePage.clickProduct(productName);
     }
 
-    @When("User opens Hummingbird Printed Sweater product page")
-    public void userOpensHummingbirdPrintedSweaterProductPage() {
-        driver.get("https://prod-kurs.coderslab.pl/index.php?id_product=2&id_product_attribute=9&rewrite=brown-bear-printed-sweater&controller=product");
+    @And("User validates that a {string} discount is applied")
+    public void userValidatesThatADiscountIsApplied(String discount) {
+        String regularPrice = productPage.getRegularPrice().replaceAll("[^0-9]", "");
+        String discountedPrice = productPage.getDiscountedPrice().replaceAll("[^0-9]", "");
+
+        BigDecimal regPrice = new BigDecimal(regularPrice);
+        BigDecimal discPrice = new BigDecimal(discountedPrice);
+        BigDecimal discountPercentage = regPrice.subtract(discPrice)
+                .divide(regPrice, 2, RoundingMode.HALF_UP)
+                .multiply(new BigDecimal(100));
+
+        String actualDiscount = discountPercentage.setScale(0, RoundingMode.HALF_UP) + "%";
+
+        assertEquals(discount, actualDiscount);
     }
 
-    @And("Validates the {string} discount")
-    public void validatesTheDiscount(String arg0) {
-        ProductPage productPage = new ProductPage(driver);
 
-        double discount = Double.parseDouble(arg0.substring(0, 2));
-//        Assert.assertEquals(discount, productPage.calculateDiscount(), 0.01);
+    @And("User selects size {string}")
+    public void userSelectsSize(String size) {
+        productPage.selectSize(size);
     }
 
-    @And("Selects {string} size")
-    public void selectsSize(String arg0) {
-        ProductPage productPage = new ProductPage(driver);
-
-        productPage.selectSize(arg0);
+    @And("User sets the product quantity to {string}")
+    public void userSetsTheProductQuantityTo(String quantity) {
+        productPage.setQuantity(quantity);
     }
 
-    @And("Sets product quantity to {string}")
-    public void setsProductQuantityTo(String arg0) throws InterruptedException{
-        ProductPage productPage = new ProductPage(driver);
-
-        productPage.setQuantity(arg0);
+    @And("User adds the item to the cart")
+    public void userAddsTheItemToTheCart() {
+        productPage.clickAddToCartButton();
     }
 
-    @And("Adds item to the cart")
-    public void addsItemToTheCart() {
-        ProductPage productPage = new ProductPage(driver);
-
-        productPage.addToCart();
+    @And("User proceeds to checkout")
+    public void userProceedsToCheckout() {
+        productPage.clickProceedToCheckoutButton();
+        cartPage.clickProceedToCheckoutButton();
     }
 
-    @And("Proceeds to checkout")
-    public void proceedsToCheckout() {
-        ProductPage productPage = new ProductPage(driver);
-        productPage.placeOrderAndCheckout();
-
-        CartPage cartPage = new CartPage(driver);
-        cartPage.proceedToCheckout();
+    @And("User continues with preselected address")
+    public void userContinuesWithPreselectedAddress() {
+        cartPage.clickContinueAddressButton();
     }
 
-    @And("Confirms address")
-    public void confirmsAddress() {
-        CartPage cartPage = new CartPage(driver);
-
-        cartPage.confirmAddress();
+    @And("User chooses the {string} delivery method")
+    public void userChoosesTheDeliveryMethod(String deliveryMethod) {
+        cartPage.selectDeliveryOption(deliveryMethod);
     }
 
-    @And("Selects pick up in-store delivery method")
-    public void selectsPickUpInStoreDeliveryMethod() {
-        CartPage cartPage = new CartPage(driver);
-
-        cartPage.confirmDeliveryOption();
+    @And("User continues with selected delivery option")
+    public void userContinuesWithSelectedDeliveryOption() {
+        cartPage.clickContinueDeliveryOptionButton();
     }
 
-    @And("Selects payment by check with obligation to pay")
-    public void selectsPaymentByCheckWithObligationToPay() {
-        CartPage cartPage = new CartPage(driver);
+    @And("User opts for {string} and confirms the order")
+    public void userOptsForPaymentByCheckWithAnObligationToPay(String paymentOption) {
+        cartPage.selectPaymentMethod(paymentOption);
+        cartPage.clickTermsOfServiceCheckBox();
+        cartPage.clickPlaceOrderButton();
 
-        cartPage.selectPayByCheck();
-        cartPage.agreeToTermsOfService();
-        cartPage.orderWithObligationToPay();
+        totalOrderPrice = cartPage.getTotalPrice();
+        referenceNumber = cartPage.getOrderReference();
+        Screenshooter.takeScreenshot(driver);
     }
 
-    @Then("User takes a screenshot of confirmation page")
-    public void userTakesAScreenshotOfConfirmationPage() throws IOException {
-        CartPage cartPage = new CartPage(driver);
-
-        totalOrderPrice = cartPage.returnTotalOrderPrice();
-        referenceNumber = cartPage.returnOrderReferenceNumber();
-
-        now = LocalDateTime.now();
-        File screenshot = ((TakesScreenshot)driver).getScreenshotAs(OutputType.FILE);
-        FileUtils.copyFile(screenshot, new File("screenshots/screenshot"+now));
-    }
-
-    @And("Navigates to order history")
-    public void navigatesToOrderHistory() {
-        CartPage cartPage = new CartPage(driver);
-        cartPage.goToAccountPage();
-
-        AccountPage accountPage = new AccountPage(driver);
+    @Then("User navigates to the order history")
+    public void userNavigatesToTheOrderHistory() {
+        cartPage.clickAccountButton();
         accountPage.navigateToOrderHistory();
     }
 
-    @And("Confirms orders is placed with {string} status and correct price")
-    public void confirmsOrdersIsPlacedWithStatusAndCorrectPrice(String arg0) {
-        OrdersPage ordersPage = new OrdersPage(driver);
-
-//        Assert.assertEquals(arg0, ordersPage.returnLatestOrderStatus().getText());
-//        Assert.assertEquals(referenceNumber, ordersPage.returnLatestReferenceNumber().getText());
-//        Assert.assertEquals(totalOrderPrice, ordersPage.returnLatestOrderTotalPrice().getText());
+    @And("User verifies the order is listed with status {string}, correct price and reference")
+    public void userVerifiesTheOrderIsListedWithStatusAndTheCorrectPrice(String status) {
+        assertEquals(status, ordersPage.getFirstOrderStatus());
+        assertEquals(totalOrderPrice, ordersPage.getFirstOrderTotalPrice());
+        assertTrue(referenceNumber.contains(ordersPage.getFirstOrderReference()));
     }
 }
